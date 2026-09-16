@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { AppStep, Product, ProductCategory, OrderItem, PaymentEntry } from '../lib/types';
 import { products as initialProducts, formatCurrency } from '../lib/data';
+import { type OrderToPrint } from '../services/printer';
 import Header from '../components/Header';
 import MenuSettingsModal from '../components/MenuSettingsModal';
 import CategoryStep from '../components/CategoryStep';
@@ -13,6 +14,7 @@ import FinalizeStep from '../components/FinalizeStep';
 import ProductModal from '../components/ProductModal';
 import CancelOrderModal from '../components/CancelOrderModal';
 import PrintingModal from '../components/PrintingModal';
+import PrinterStatusWidget from '../components/PrinterStatusWidget';
 
 function generateOrderNumber(): string {
   return String(Math.floor(Math.random() * 9000) + 1000);
@@ -35,6 +37,7 @@ export default function Home() {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [printingModalOpen, setPrintingModalOpen] = useState(false);
   const [printingAutoCompleteKey, setPrintingAutoCompleteKey] = useState(0);
+  const [printingOrderData, setPrintingOrderData] = useState<OrderToPrint | undefined>();
 
   const [modalInitialQuantity, setModalInitialQuantity] = useState(1);
   const [modalInitialObservations, setModalInitialObservations] = useState('');
@@ -195,12 +198,29 @@ export default function Home() {
   }, [goToStep]);
 
   const handleConfirmPrint = useCallback(() => {
+    // Get payment method from payments (use first one or a default)
+    const paymentMethod = payments.length > 0 ? payments[0].method : 'dinheiro';
+
+    // Prepare order data for printing
+    const orderData: OrderToPrint = {
+      orderNumber,
+      items: items.map((item) => ({
+        name: item.product.name,
+        quantity: item.quantity,
+        unitPrice: item.product.price,
+      })),
+      total: roundedTotal,
+      paymentMethod,
+    };
+
+    setPrintingOrderData(orderData);
     setPrintingModalOpen(true);
     setPrintingAutoCompleteKey((prev) => prev + 1);
-  }, []);
+  }, [orderNumber, items, roundedTotal, payments]);
 
   const handlePrintingDone = useCallback(() => {
     setPrintingModalOpen(false);
+    setPrintingOrderData(undefined);
     resetAll();
     setStep('inicial');
   }, [resetAll]);
@@ -379,8 +399,11 @@ export default function Home() {
         open={printingModalOpen}
         onClose={() => {}}
         onDone={handlePrintingDone}
+        orderData={printingOrderData}
         autoCompleteKey={printingAutoCompleteKey}
       />
+
+      <PrinterStatusWidget />
     </div>
   );
 }
