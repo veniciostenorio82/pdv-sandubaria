@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { PrintPayload } from './types';
+import { PrintPayload } from './types.js';
 
 const ESC = '\x1b';
 const WIDTH = 32;
