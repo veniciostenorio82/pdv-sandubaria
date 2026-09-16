@@ -93,7 +93,7 @@ export default function PrinterStatusWidget() {
         <div className="flex items-center gap-2 mb-1">
           <span className={`w-3 h-3 rounded-full ${status.connected ? 'bg-green-500' : 'bg-red-500'}`} />
           <span className="font-bold text-sm text-gray-900">
-            {status.connected ? '🟢 Conectada' : '🔴 Desconectada'}
+            {status.connected ? '🟢 Impressora conectada' : '🔴 Impressora desconectada'}
           </span>
         </div>
         {status.message && (

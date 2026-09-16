@@ -98,9 +98,16 @@ export interface OrderToPrint {
     name: string;
     quantity: number;
     unitPrice: number;
+    observations?: string;
   }>;
   total: number;
   paymentMethod: string;
+  payments?: Array<{
+    method: string;
+    amount: number;
+    cashReceived?: number;
+    change?: number;
+  }>;
 }
 
 /**

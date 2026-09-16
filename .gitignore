@@ -19,6 +19,8 @@
 
 # production
 /build
+/release/
+/desktop-launcher/.cache/
 
 # misc
 .DS_Store

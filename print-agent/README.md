@@ -33,6 +33,7 @@ Endpoints
 
 - `GET /health` — returns `{ "status": "ok" }`.
 - `POST /print` — accepts JSON order payload and prints it.
+- The agent binds to `127.0.0.1` by default (`HOST`). Do not expose it on the LAN.
 
 Example payload:
 
@@ -40,11 +41,15 @@ Example payload:
 {
   "orderNumber": 42,
   "items": [
-    { "name": "X-Tudo", "quantity": 2, "unitPrice": 18 },
+    { "name": "X-Tudo", "quantity": 2, "unitPrice": 18, "observations": "Sem cebola" },
     { "name": "Coca-Cola", "quantity": 1, "unitPrice": 6 }
   ],
   "total": 42,
-  "paymentMethod": "PIX"
+  "paymentMethod": "PIX + Dinheiro",
+  "payments": [
+    { "method": "PIX", "amount": 20 },
+    { "method": "Dinheiro", "amount": 22, "cashReceived": 30, "change": 8 }
+  ]
 }
 ```
 

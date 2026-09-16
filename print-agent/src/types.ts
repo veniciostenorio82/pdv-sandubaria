@@ -2,6 +2,14 @@ export interface PrintItem {
   name: string;
   quantity: number;
   unitPrice: number;
+  observations?: string;
+}
+
+export interface PrintPayment {
+  method: string;
+  amount: number;
+  cashReceived?: number;
+  change?: number;
 }
 
 export interface PrintPayload {
@@ -9,4 +17,5 @@ export interface PrintPayload {
   items: PrintItem[];
   total: number;
   paymentMethod: string;
+  payments?: PrintPayment[];
 }

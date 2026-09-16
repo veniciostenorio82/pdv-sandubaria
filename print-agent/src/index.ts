@@ -7,18 +7,27 @@ import type { PrintPayload } from './types.js';
 dotenv.config();
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 9100;
+const HOST = process.env.HOST || '127.0.0.1';
 const PRINTER_DEVICE = process.env.PRINTER_DEVICE || '/dev/usb/lp0';
-const PDV_ORIGIN = process.env.PDV_ORIGIN || 'http://localhost:3000';
+const extraOrigins = (process.env.PDV_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = [
+  ...extraOrigins,
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:3001',
+];
 
 const app = express();
 
 app.use(express.json({ limit: '200kb' }));
 
-// Simple CORS allowing PDV origin and localhost during development
+// CORS restricted to the PDV origin and localhost during development
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowed = [PDV_ORIGIN, 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'];
-  if (origin && allowed.includes(origin)) {
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -37,9 +46,19 @@ function isValidPayload(body: any): body is PrintPayload {
   if (!Array.isArray(body.items) || body.items.length === 0) return false;
   for (const it of body.items) {
     if (typeof it.name !== 'string' || typeof it.quantity !== 'number' || typeof it.unitPrice !== 'number') return false;
+    if (it.observations != null && typeof it.observations !== 'string') return false;
   }
   if (typeof body.total !== 'number') return false;
-  if (typeof body.paymentMethod !== 'string') return false;
+  const hasPaymentMethod = typeof body.paymentMethod === 'string' && body.paymentMethod.length > 0;
+  const hasPayments = Array.isArray(body.payments) && body.payments.length > 0;
+  if (!hasPaymentMethod && !hasPayments) return false;
+  if (hasPayments) {
+    for (const payment of body.payments) {
+      if (typeof payment.method !== 'string' || typeof payment.amount !== 'number') return false;
+      if (payment.cashReceived != null && typeof payment.cashReceived !== 'number') return false;
+      if (payment.change != null && typeof payment.change !== 'number') return false;
+    }
+  }
   return true;
 }
 
@@ -78,9 +97,17 @@ app.post('/test-print', async (_req, res) => {
     // Create a simple test receipt
     const testPayload: PrintPayload = {
       orderNumber: 'TEST',
-      items: [{ name: 'TESTE DE IMPRESSORA', quantity: 1, unitPrice: 0.0 }],
+      items: [
+        {
+          name: 'TESTE DE IMPRESSORA',
+          quantity: 1,
+          unitPrice: 0.0,
+          observations: 'Cupom de teste',
+        },
+      ],
       total: 0.0,
       paymentMethod: 'TESTE',
+      payments: [{ method: 'TESTE', amount: 0.0 }],
     };
 
     await printToDevice(testPayload, PRINTER_DEVICE);
@@ -92,7 +119,7 @@ app.post('/test-print', async (_req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Print Agent iniciado na porta ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`Print Agent iniciado em ${HOST}:${PORT}`);
   console.log(`Printer device: ${PRINTER_DEVICE}`);
 });

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PDV Sandubaria
+Comment=Inicia o Print Agent local e abre o PDV Sandubaria
+Exec=@EXEC@
+Icon=@ICON@
+Terminal=false
+Categories=Office;Utility;
+StartupNotify=true
+Keywords=PDV;Sandubaria;Impressora;POS;

@@ -2,6 +2,32 @@
 
 Este guia explica como instalar e configurar o sistema PDV com suporte a impressión térmica em uma máquina Linux Debian.
 
+## Instalação recomendada no estabelecimento (launcher independente)
+
+A máquina do caixa **não** precisa do repositório Git, de Node.js nem de `npm run dev`.
+
+1. No computador de desenvolvimento, gere o pacote:
+
+```bash
+npm run build:launcher
+```
+
+2. Copie a pasta `release/` para o estabelecimento e execute:
+
+```bash
+./install.sh
+```
+
+3. Clique no atalho **PDV Sandubaria**.
+
+O launcher inicia o Print Agent em `127.0.0.1:9100`, espera `/health` e abre a PWA:
+
+`https://pdv-sandubaria.vercel.app`
+
+Detalhes: `desktop-launcher/README.md`
+
+O restante deste documento descreve o fluxo antigo de desenvolvimento (clonar o projeto e rodar os serviços com Node.js).
+
 ## 📋 Visão Geral da Arquitetura
 
 ```

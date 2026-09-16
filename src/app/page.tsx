@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { AppStep, Product, ProductCategory, OrderItem, PaymentEntry } from '../lib/types';
-import { products as initialProducts, formatCurrency } from '../lib/data';
+import { products as initialProducts, formatCurrency, paymentMethods } from '../lib/data';
 import { type OrderToPrint } from '../services/printer';
 import Header from '../components/Header';
 import MenuSettingsModal from '../components/MenuSettingsModal';
@@ -198,19 +198,27 @@ export default function Home() {
   }, [goToStep]);
 
   const handleConfirmPrint = useCallback(() => {
-    // Get payment method from payments (use first one or a default)
-    const paymentMethod = payments.length > 0 ? payments[0].method : 'dinheiro';
+    const paymentName = (method: string) =>
+      paymentMethods.find((item) => item.id === method)?.name ?? method;
 
-    // Prepare order data for printing
+    const orderPayments = payments.map((payment) => ({
+      method: paymentName(payment.method),
+      amount: payment.amount,
+      cashReceived: payment.cashReceived,
+      change: payment.change,
+    }));
+
     const orderData: OrderToPrint = {
       orderNumber,
       items: items.map((item) => ({
         name: item.product.name,
         quantity: item.quantity,
         unitPrice: item.product.price,
+        observations: item.observations,
       })),
       total: roundedTotal,
-      paymentMethod,
+      paymentMethod: orderPayments.map((payment) => payment.method).join(' + ') || 'Não informado',
+      payments: orderPayments,
     };
 
     setPrintingOrderData(orderData);
