@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import type { AppStep, Product, ProductCategory, OrderItem, PaymentEntry } from '../lib/types';
-import { products, formatCurrency } from '../lib/data';
+import { products as initialProducts, formatCurrency } from '../lib/data';
 import Header from '../components/Header';
+import MenuSettingsModal from '../components/MenuSettingsModal';
 import CategoryStep from '../components/CategoryStep';
 import ProductListStep from '../components/ProductListStep';
 import CartStep from '../components/CartStep';
@@ -21,6 +22,8 @@ export default function Home() {
   const [step, setStep] = useState<AppStep>('inicial');
   const [, setPreviousStepStack] = useState<AppStep[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuProducts, setMenuProducts] = useState(() => initialProducts);
 
   const [items, setItems] = useState<OrderItem[]>([]);
   const [payments, setPayments] = useState<PaymentEntry[]>([]);
@@ -204,8 +207,8 @@ export default function Home() {
 
   const productsByCategory = useMemo(() => {
     if (!selectedCategory) return [];
-    return products.filter((p) => p.category === selectedCategory);
-  }, [selectedCategory]);
+    return menuProducts.filter((p) => p.category === selectedCategory);
+  }, [selectedCategory, menuProducts]);
 
   const canGoBack = step !== 'inicial';
   const canCancel = step !== 'inicial' && (items.length > 0 || payments.length > 0);
@@ -281,6 +284,7 @@ export default function Home() {
         cartItems={items}
         onBack={goBack}
         onCancel={() => setCancelModalOpen(true)}
+        onOpenMenu={() => setMenuOpen(true)}
         canGoBack={canGoBack}
         canCancel={canCancel}
         totalAmount={roundedTotal}
@@ -355,6 +359,13 @@ export default function Home() {
           setModalInitialObservations('');
         }}
         onAdd={handleAddOrUpdateFromModal}
+      />
+
+      <MenuSettingsModal
+        open={menuOpen}
+        products={menuProducts}
+        onClose={() => setMenuOpen(false)}
+        onSave={(p: Product[]) => setMenuProducts(p)}
       />
 
       <CancelOrderModal

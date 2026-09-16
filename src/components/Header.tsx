@@ -6,6 +6,7 @@ interface HeaderProps {
   cartItems: OrderItem[];
   onBack: () => void;
   onCancel: () => void;
+  onOpenMenu?: () => void;
   canGoBack: boolean;
   canCancel: boolean;
   totalAmount: number;
@@ -25,6 +26,7 @@ export default function Header({
   cartItems,
   onBack,
   onCancel,
+  onOpenMenu,
   canGoBack,
   canCancel,
   totalAmount,
@@ -55,6 +57,16 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => onOpenMenu && onOpenMenu()}
+            className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 mr-2"
+            aria-label="Configurações do cardápio"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09c.7 0 1.3-.4 1.51-1a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06c.5.5 1.2.64 1.82.33.6-.3 1-.9 1-1.51V3a2 2 0 014 0v.09c0 .61.4 1.21 1 1.51.62.3 1.32.17 1.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06c-.3.6-.17 1.3.33 1.82.5.5 1.21.64 1.82.33H21a2 2 0 010 4h-.09c-.61 0-1.21.4-1.51 1-.3.6-.17 1.3.33 1.82z" />
+            </svg>
+          </button>
           {canGoBack && (
             <button
               onClick={onBack}
