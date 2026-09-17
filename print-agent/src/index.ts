@@ -15,6 +15,7 @@ const extraOrigins = (process.env.PDV_ORIGIN || 'http://localhost:3000')
   .filter(Boolean);
 const allowedOrigins = [
   ...extraOrigins,
+  'https://pdv-sandubaria.vercel.app/',
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:3001',
