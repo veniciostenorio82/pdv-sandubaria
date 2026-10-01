@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import Modal from './Modal';
-import { printOrder, type OrderToPrint } from '../services/printer';
+import type { Order } from '../lib/types';
+import { printOrder } from '../services/printer';
 
 interface PrintingModalProps {
   open: boolean;
   onClose: () => void;
   onDone: () => void;
-  orderData?: OrderToPrint;
+  orderData?: Order;
   autoCompleteKey?: number;
 }
 
@@ -130,7 +131,7 @@ export default function PrintingModal({
               <p className="text-red-600 mt-2 text-sm">{errorMessage}</p>
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-xs text-yellow-700">
-                  💡 Verifique se a impressora está conectada e se o Print Agent está rodando.
+                  💡 Verifique se a impressora está conectada e se o Sandubaria Print está aberto.
                 </p>
               </div>
             </>

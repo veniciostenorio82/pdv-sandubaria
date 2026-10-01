@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import type { AppStep, Product, ProductCategory, OrderItem, PaymentEntry } from '../lib/types';
-import { products as initialProducts, formatCurrency, paymentMethods } from '../lib/data';
-import { type OrderToPrint } from '../services/printer';
+import type { AppStep, Order, Product, ProductCategory, OrderItem, PaymentEntry } from '../lib/types';
+import { products as initialProducts, formatCurrency } from '../lib/data';
 import Header from '../components/Header';
 import MenuSettingsModal from '../components/MenuSettingsModal';
 import CategoryStep from '../components/CategoryStep';
@@ -37,7 +36,7 @@ export default function Home() {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [printingModalOpen, setPrintingModalOpen] = useState(false);
   const [printingAutoCompleteKey, setPrintingAutoCompleteKey] = useState(0);
-  const [printingOrderData, setPrintingOrderData] = useState<OrderToPrint | undefined>();
+  const [printingOrderData, setPrintingOrderData] = useState<Order | undefined>();
 
   const [modalInitialQuantity, setModalInitialQuantity] = useState(1);
   const [modalInitialObservations, setModalInitialObservations] = useState('');
@@ -198,33 +197,15 @@ export default function Home() {
   }, [goToStep]);
 
   const handleConfirmPrint = useCallback(() => {
-    const paymentName = (method: string) =>
-      paymentMethods.find((item) => item.id === method)?.name ?? method;
-
-    const orderPayments = payments.map((payment) => ({
-      method: paymentName(payment.method),
-      amount: payment.amount,
-      cashReceived: payment.cashReceived,
-      change: payment.change,
-    }));
-
-    const orderData: OrderToPrint = {
+    setPrintingOrderData({
+      items,
+      payments,
+      createdAt: createdAt ?? new Date(),
       orderNumber,
-      items: items.map((item) => ({
-        name: item.product.name,
-        quantity: item.quantity,
-        unitPrice: item.product.price,
-        observations: item.observations,
-      })),
-      total: roundedTotal,
-      paymentMethod: orderPayments.map((payment) => payment.method).join(' + ') || 'Não informado',
-      payments: orderPayments,
-    };
-
-    setPrintingOrderData(orderData);
+    });
     setPrintingModalOpen(true);
     setPrintingAutoCompleteKey((prev) => prev + 1);
-  }, [orderNumber, items, roundedTotal, payments]);
+  }, [orderNumber, items, payments, createdAt]);
 
   const handlePrintingDone = useCallback(() => {
     setPrintingModalOpen(false);
